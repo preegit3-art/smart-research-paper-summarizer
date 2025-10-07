@@ -63,7 +63,7 @@ def answer_question(context, question):
 
 # Streamlit UI
 st.set_page_config(page_title="Smart Research Paper Summarizer", layout="wide")
-st.title("📚 Smart Research Paper Summarizer")
+st.title("Smart Research Paper Summarizer")
 
 # Session state for storing papers
 if "papers" not in st.session_state:
@@ -90,7 +90,7 @@ if st.session_state.papers:
     selected_paper = st.selectbox("Select a paper to view summaries", list(st.session_state.papers.keys()))
     paper_data = st.session_state.papers[selected_paper]
     for section, summary in paper_data["summaries"].items():
-        with st.expander(f"📄 {section}"):
+        with st.expander(f" {section}"):
             st.write(summary)
 
 # Q&A
@@ -112,7 +112,8 @@ if len(st.session_state.papers) == 2:
     for section in ["Abstract", "Introduction", "Methods", "Results", "Conclusion"]:
         sum1 = st.session_state.papers[paper1]["summaries"].get(section, "Not found")
         sum2 = st.session_state.papers[paper2]["summaries"].get(section, "Not found")
-        with st.expander(f"🔍 {section} Comparison"):
+        with st.expander(f" {section} Comparison"):
             col1, col2 = st.columns(2)
             col1.markdown(f"**{paper1}**\n\n{sum1}")
             col2.markdown(f"**{paper2}**\n\n{sum2}")
+
