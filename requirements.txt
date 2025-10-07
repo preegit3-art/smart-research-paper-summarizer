@@ -2,3 +2,4 @@ streamlit
 pdfplumber
 openai
 python-dotenv
+openai>=1.0.0
