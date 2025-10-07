@@ -1,16 +1,19 @@
 import streamlit as st
 import pdfplumber
-import openai
 import os
 from dotenv import load_dotenv
 from io import BytesIO
+from openai import AzureOpenAI
 
 # Load environment variables
 load_dotenv()
-openai.api_key = os.getenv("OPENAI_API_KEY")
-openai.api_base = os.getenv("OPENAI_API_BASE")  # Azure endpoint
-openai.api_type = os.getenv("OPENAI_API_TYPE", "azure")
-openai.api_version = os.getenv("OPENAI_API_VERSION", "2023-05-15")
+
+# Initialize Azure OpenAI client
+client = AzureOpenAI(
+    api_key=os.getenv("OPENAI_API_KEY"),
+    api_version=os.getenv("OPENAI_API_VERSION"),
+    azure_endpoint=os.getenv("OPENAI_API_BASE")
+)
 deployment_name = os.getenv("OPENAI_DEPLOYMENT_NAME")
 
 # Extract text from PDF
@@ -39,24 +42,24 @@ def split_into_sections(text):
 # Summarize section using Azure OpenAI
 def summarize_section(section_name, section_text):
     prompt = f"Summarize the following {section_name} section of a research paper in 3-4 sentences:\n\n{section_text}"
-    response = openai.ChatCompletion.create(
-        engine=deployment_name,
+    response = client.chat.completions.create(
+        model=deployment_name,
         messages=[{"role": "user", "content": prompt}],
         temperature=0.5,
         max_tokens=300
     )
-    return response.choices[0].message["content"]
+    return response.choices[0].message.content
 
 # Answer question using context
 def answer_question(context, question):
     prompt = f"Using the following context from a research paper, answer the question. Cite the section if possible.\n\nContext:\n{context}\n\nQuestion: {question}"
-    response = openai.ChatCompletion.create(
-        engine=deployment_name,
+    response = client.chat.completions.create(
+        model=deployment_name,
         messages=[{"role": "user", "content": prompt}],
         temperature=0.5,
         max_tokens=300
     )
-    return response.choices[0].message["content"]
+    return response.choices[0].message.content
 
 # Streamlit UI
 st.set_page_config(page_title="Smart Research Paper Summarizer", layout="wide")
