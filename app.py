@@ -16,7 +16,7 @@ def query_fastapi(text, question=None):
     payload = {"text": text}
     if question:
         payload["question"] = question
-    response = requests.post("http://localhost:8000/summarize", json=payload)
+    response = requests.post("https://smart-research-api.onrender.com/summarize", json=payload)
     return response.json()["response"]
 
 st.set_page_config(page_title="Smart Summarizer", layout="wide")
@@ -38,3 +38,4 @@ if uploaded_file:
         with st.spinner("Answering via RAG..."):
             answer = query_fastapi(file_text, question)
             st.subheader("Answer")
+
