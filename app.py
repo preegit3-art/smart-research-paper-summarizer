@@ -77,21 +77,32 @@ if uploaded_files:
     for file in uploaded_files:
         file_text = extract_text_from_pdf(BytesIO(file.read()))
         sections = split_into_sections(file_text)
+
+        # Generate total summary
+        total_summary_prompt = f"Summarize the entire research paper in 5-6 sentences:\n\n{file_text}"
+        total_summary_response = client.chat.completions.create(
+            model=deployment_name,
+            messages=[{"role": "user", "content": total_summary_prompt}],
+            temperature=0.5,
+            max_tokens=500
+        )
+        total_summary = total_summary_response.choices[0].message.content
+
         st.session_state.papers[file.name] = {
             "text": file_text,
             "sections": sections,
+            "total_summary": total_summary,
             "summaries": {sec: summarize_section(sec, txt) for sec, txt in sections.items()}
         }
     st.success("PDFs processed and summarized successfully!")
 
-# Display summaries
+# Display total summary
 if st.session_state.papers:
-    st.header("Section-wise Summaries")
-    selected_paper = st.selectbox("Select a paper to view summaries", list(st.session_state.papers.keys()))
+    st.header("Total Paper Summary")
+    selected_paper = st.selectbox("Select a paper to view summary", list(st.session_state.papers.keys()))
     paper_data = st.session_state.papers[selected_paper]
-    for section, summary in paper_data["summaries"].items():
-        with st.expander(f" {section}"):
-            st.write(summary)
+    st.markdown(f"**Summary of {selected_paper}:**")
+    st.write(paper_data["total_summary"])
 
 # Q&A
 if st.session_state.papers:
@@ -116,4 +127,3 @@ if len(st.session_state.papers) == 2:
             col1, col2 = st.columns(2)
             col1.markdown(f"**{paper1}**\n\n{sum1}")
             col2.markdown(f"**{paper2}**\n\n{sum2}")
-
