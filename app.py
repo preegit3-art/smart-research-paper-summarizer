@@ -24,7 +24,7 @@ def query_fastapi(text, question=None):
         return f" Error communicating with backend: {str(e)}"
 
 st.set_page_config(page_title="Smart Summarizer", layout="wide")
-st.title("Smart Research Paper Summarizer (FastAPI + RAG)")
+st.title("Smart Research Paper Summarizer")
 
 uploaded_file = st.file_uploader("Upload a research paper (PDF)", type="pdf")
 if uploaded_file:
@@ -43,4 +43,5 @@ if uploaded_file:
             answer = query_fastapi(file_text, question)
             st.subheader("Answer")
             st.write(answer)
+
 
