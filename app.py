@@ -24,7 +24,9 @@ def extract_text_from_pdf(file):
     text = ""
     with pdfplumber.open(file) as pdf:
         for page in pdf.pages:
-            text += page.extract_text() + "\n"
+            page_text = page.extract_text()
+            if page_text:
+                text += page_text + "\n"
     return text
 
 # Split text into sections
@@ -41,6 +43,17 @@ def split_into_sections(text):
         else:
             sections[current_section] += line + "\n"
     return sections
+
+# Summarize section using Azure OpenAI
+def summarize_section(section_name, section_text):
+    prompt = f"Summarize the following {section_name} section of a research paper in 3-4 sentences:\n\n{section_text}"
+    response = client.chat.completions.create(
+        model=deployment_name,
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.5,
+        max_tokens=300
+    )
+    return response.choices[0].message.content
 
 # Chunk text for RAG
 def chunk_text(text, chunk_size=500):
@@ -109,11 +122,13 @@ if uploaded_files:
         embeddings = get_embeddings(chunks)
         index = build_faiss_index(embeddings)
 
+        summaries = {sec: summarize_section(sec, txt) for sec, txt in sections.items()}
+
         st.session_state.papers[file.name] = {
             "text": file_text,
             "sections": sections,
             "total_summary": total_summary,
-            "summaries": {sec: summarize_section(sec, txt) for sec, txt in sections.items()},
+            "summaries": summaries,
             "chunks": chunks,
             "index": index
         }
@@ -148,3 +163,4 @@ if len(st.session_state.papers) == 2:
         with st.expander(f" {section} Comparison"):
             col1, col2 = st.columns(2)
             col1.markdown(f"**{paper1}**\n\n{sum1}")
+            col2.markdown(f"**{paper2}**\n\n{sum2}")
