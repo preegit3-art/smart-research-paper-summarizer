@@ -4,3 +4,6 @@ openai
 python-dotenv
 openai>=1.0.0
 faiss-cpu
+numpy
+fastapi
+uvicorn
