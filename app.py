@@ -34,7 +34,7 @@ def split_into_sections(text):
     current_section = "Introduction"
     sections[current_section] = ""
     for line in text.splitlines():
-        header_match = re.match(r"^(Abstract|Introduction)$", line.strip(), re.IGNORECASE)
+        header_match = re.match(r"^(Abstract|Introduction|Methods?|Results?|Discussion|Conclusion|References?)$", line.strip(), re.IGNORECASE)
         if header_match:
             current_section = header_match.group(1).capitalize()
             sections[current_section] = ""
@@ -142,10 +142,9 @@ if len(st.session_state.papers) == 2:
     paper_names = list(st.session_state.papers.keys())
     paper1, paper2 = paper_names[0], paper_names[1]
     st.subheader(f"Comparison: {paper1} vs {paper2}")
-    for section in ["Abstract", "Introduction"]:
+    for section in ["Abstract", "Introduction", "Methods", "Results", "Conclusion"]:
         sum1 = st.session_state.papers[paper1]["summaries"].get(section, "Not found")
         sum2 = st.session_state.papers[paper2]["summaries"].get(section, "Not found")
         with st.expander(f" {section} Comparison"):
             col1, col2 = st.columns(2)
             col1.markdown(f"**{paper1}**\n\n{sum1}")
-
