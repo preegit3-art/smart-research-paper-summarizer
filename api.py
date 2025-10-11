@@ -65,4 +65,9 @@ def summarize(request: SummaryRequest):
         temperature=0.5,
         max_tokens=500
     )
-    return {"response": response.choices[0].message.content}
+
+    answer = response.choices[0].message.content.strip()
+    if not answer:
+        answer = "⚠️ The model did not return an answer. Please try rephrasing your question."
+
+    return {"response": answer}
