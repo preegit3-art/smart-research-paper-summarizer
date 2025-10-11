@@ -16,16 +16,20 @@ def query_fastapi(text, question=None):
     payload = {"text": text}
     if question:
         payload["question"] = question
-    response = requests.post("https://smart-research-api.onrender.com/summarize", json=payload)
-    return response.json()["response"]
+    try:
+        response = requests.post("http://localhost:8000/summarize", json=payload)
+        data = response.json()
+        return data.get("response", "⚠️ No response received from the backend.")
+    except Exception as e:
+        return f"⚠️ Error communicating with backend: {str(e)}"
 
 st.set_page_config(page_title="Smart Summarizer", layout="wide")
-st.title("Smart Research Paper Summarizer")
+st.title("Smart Research Paper Summarizer (FastAPI + RAG)")
 
 uploaded_file = st.file_uploader("Upload a research paper (PDF)", type="pdf")
 if uploaded_file:
     file_text = extract_text_from_pdf(BytesIO(uploaded_file.read()))
-    st.text_area("Extracted Text", file_text[:1000] + "...", height=200)
+    st.text_area("Extracted Text Preview", file_text[:2000], height=300)
 
     if st.button("Summarize"):
         with st.spinner("Summarizing via FastAPI..."):
@@ -38,4 +42,4 @@ if uploaded_file:
         with st.spinner("Answering via RAG..."):
             answer = query_fastapi(file_text, question)
             st.subheader("Answer")
-
+            st.write(answer)
