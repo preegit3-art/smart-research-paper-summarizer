@@ -17,7 +17,7 @@ def query_fastapi(text, question=None):
     if question:
         payload["question"] = question
     try:
-        response = requests.post("https://smart-research-api.onrender.com/summarize", json=payload)
+        response = requests.post("https://smart-research-paper-summarizer-demo.onrender.co/summarize", json=payload)
         data = response.json()
         return data.get("response", "No response received from the backend.")
     except Exception as e:
@@ -43,6 +43,7 @@ if uploaded_file:
             answer = query_fastapi(file_text, question)
             st.subheader("Answer")
             st.write(answer)
+
 
 
 
